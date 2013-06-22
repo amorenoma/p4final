@@ -1,19 +1,24 @@
+-@movie.director = @movie.crew[0].name
+-@movie.description = @movie.overview
+
 %h1= "Search TMDb Results for: #{params[:search_terms]}"
 
-%table#movies
-  %thead
-    %tr
-      %th Title Header
-      %th Rating
-      %th Release Date
-      %th Director
-      %th Add
-  %tbody
-    - @movies.each do |movie|
-      %tr
-        %td= movie.title 
-        %td= movie.rating
-        %td= movie.release_date
-        %td= movie.director
-        %td= movie.description
-        %td= link_to 'Add Movie', movies_path(:title =>movie.title,:date=>movie.release_date), :method=> :post
+
+= form_tag movies_path do
+
+  = label :movie, :title, 'Title'
+  = text_field :movie, 'title'
+
+  = label :movie, :rating, 'Rating'
+  = select :movie, :rating, ['G','PG','PG-13','R','NC-17']
+
+  = label :movie, :release_date, 'Released On'
+  = text_field :movie, :release_date
+
+  = label :movie, :director, 'Director'
+  = text_field :movie, 'director'
+
+  = label :movie, :description, 'Description';
+  = text_area :movie, 'description'
+
+  = submit_tag 'Add Movie'
