@@ -1,6 +1,6 @@
 class MoviesController < ApplicationController
 
-	before_filter :login, :except => [:index, :same_director_movies, :show ]
+	before_filter :login, :except => [:index, :same_director_movies, :show]
 
   def show
     id = params[:id] # retrieve movie ID from URI route
