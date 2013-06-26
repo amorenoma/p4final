@@ -18,5 +18,92 @@ describe MoviesController do
       # look for controller method to assign @movies
       assigns(:movies).should == fake_results
     end
+	end
+	describe 'movie controller actions' do
+		it 'should show a movie' do
+      movie = mock('movie1', :title => 'Psycho')
+      Movie.stub(:find).with('1').and_return(movie)
+      get :show, {:id => 1}
+      response.should render_template("show")
+		end
+		it 'should get the index page' do
+			get :index
+      response.should render_template("index")
+		end
+		it 'should create a movie' do
+			movie = mock('movie1', :title => 'Psycho')
+      Movie.stub(:create!).and_return(movie)
+      get :create, {:movie => movie}
+      flash[:notice].should == 'Psycho was successfully created.'  
+		end
+		it 'should edit a movie' do
+      movie = mock('movie1', :title => 'Psycho')
+      Movie.stub(:find).with('1').and_return(movie)
+      get :edit, {:id => 1}
+      response.should render_template("edit")
+		end
+		it 'should update a movie' do
+	    movie = mock('movie1', :title => 'Psycho')
+      Movie.stub(:find).with('1').and_return(movie)		
+			movie.stub(:update_attributes!)
+			post :update, {:id => 1, :movie => movie}
+			flash[:notice].should == 'Psycho was successfully updated.'
+		end
+		it 'should delete a movie' do
+	    movie = mock('movie1', :title => 'Psycho')
+      Movie.stub(:find).with('1').and_return(movie)		
+			movie.stub(:destroy).and_return(true)		
+			post :destroy, {:id => 1}
+			response.should redirect_to(movies_path)
+		end
+		it 'should show movies with same director' do
+      movie1 = mock('movie1', :title => 'Psycho', :director => 'Hitchcock')
+      movie2 = mock('movie2', :title => 'The Birds', :director => 'Hitchcock')
+			Movie.stub(:find_by_id).and_return(movie1)
+			Movie.stub(:find_all_by_director).with(movie1.director).and_return(movie2)
+			get :same_director_movies, {:id => 1}
+			response.should render_template("same_director_movies")
+		end
+		it 'should redirect when no director info' do
+			movie = mock('movie1', :title => 'Psycho', :director => '')
+			Movie.stub(:find_by_id).and_return(movie)	
+			get :same_director_movies, {:id => 1}
+			response.should redirect_to(movies_path)
+		end
+		it 'should redirect when no movie found in TMDB' do
+			post :search_tmdb, {:search_terms => []}
+			response.should redirect_to(movies_path)
+		end
+		it 'should redirect when invalid TMDB key' do
+			Movie.stub(:find_in_tmdb).and_raise(Movie::InvalidKeyError)
+			post :search_tmdb, {:search_terms => 'Psycho'}
+			response.should redirect_to(movies_path)
+		end
+ 		it 'should sort films by release date' do
+			session[:sort] = 'release_date'
+			Movie.stub(:find_all_by_rating).with(anything(), {:order => :release_date})
+			get :index, {:sort => 'release_date'}
+		end
+ 		it 'should sort films by title' do
+			session[:sort] = 'title'
+			Movie.stub(:find_all_by_rating).with(anything(), {:order => :title})
+			get :index, {:sort => 'title'}
+		end
   end
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
